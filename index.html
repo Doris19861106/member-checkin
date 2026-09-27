@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8">
 
@@ -8,7 +9,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>會員大會電子報到</title>
+  <title>
+    中華民國財稅會計學習交流協會電子簽到系統
+  </title>
 
   <!-- 手機條碼掃描 -->
   <script
@@ -17,175 +20,422 @@
   </script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 22px;
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        "Microsoft JhengHei",
+        sans-serif;
+
       background: #FFF6E0;
       color: #333;
     }
 
-    .wrap {
-      max-width: 520px;
-      margin: auto;
+    .page {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
     }
 
-    h1 {
+
+    /* =========================
+       標題
+    ========================= */
+
+    .header {
       text-align: center;
-      font-size: 28px;
-      margin: 18px 0 24px;
+      margin-bottom: 22px;
     }
+
+    .logo {
+      width: auto;
+      max-width: 145px;
+      max-height: 145px;
+
+      object-fit: contain;
+
+      display: block;
+
+      margin:
+        0 auto
+        14px;
+    }
+
+    .association-name {
+      font-size: 24px;
+      line-height: 1.45;
+      font-weight: 800;
+
+      color: #8E735A;
+
+      margin-bottom: 6px;
+    }
+
+    .system-name {
+      font-size: 20px;
+      font-weight: 700;
+
+      color: #AC8F6C;
+    }
+
+
+    /* =========================
+       卡片
+    ========================= */
 
     .card {
-      background: white;
-      border-radius: 18px;
+      background: #fff;
+
       padding: 22px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+
+      border-radius: 22px;
+
+      box-shadow:
+        0 6px 20px
+        rgba(0,0,0,.07);
     }
+
+
+    /* =========================
+       輸入框
+    ========================= */
 
     input {
       width: 100%;
-      padding: 15px;
-      border: 2px solid #ddd;
-      border-radius: 12px;
-      font-size: 24px;
+
+      padding: 17px 16px;
+
+      border:
+        2px solid
+        #ddd;
+
+      border-radius: 14px;
+
+      font-size: 21px;
+
+      outline: none;
+
       margin-bottom: 12px;
+
+      background: #fff;
     }
+
+    input:focus {
+      border-color:
+        #AC8F6C;
+    }
+
+
+    /* =========================
+       按鈕
+    ========================= */
 
     button {
       width: 100%;
-      padding: 16px;
+
       border: 0;
-      border-radius: 12px;
-      font-size: 20px;
+      border-radius: 14px;
+
+      padding: 16px;
+
       margin-bottom: 12px;
+
+      font-size: 19px;
+      font-weight: 700;
+
       cursor: pointer;
     }
 
-    .brown {
-      background: #AC8F6C;
-      color: white;
+    .brown-btn {
+      background:
+        #AC8F6C;
+
+      color: #fff;
     }
 
-    .green {
-      background: #7FA6A1;
-      color: white;
+    .scan-btn {
+      background:
+        #84AAA6;
+
+      color: #fff;
     }
 
-    .pink {
-      background: #FFA3B2;
-      color: white;
+    .pink-btn {
+      background:
+        #FFA3B2;
+
+      color: #fff;
+
+      margin-top: 15px;
     }
 
-    .gray {
-      background: #999;
-      color: white;
+    .gray-btn {
+      background:
+        #999;
+
+      color: #fff;
     }
 
-    #loginArea,
+    button:disabled {
+      opacity: .65;
+      cursor: default;
+    }
+
+
+    /* =========================
+       PIN
+    ========================= */
+
+    #loginArea {
+      display: block;
+    }
+
     #mainArea {
       display: none;
     }
 
+    .pin-title {
+      text-align: center;
+
+      font-size: 18px;
+      font-weight: 700;
+
+      color: #6f6255;
+
+      margin-bottom: 14px;
+    }
+
+    .login-note {
+      text-align: center;
+
+      font-size: 14px;
+      color: #888;
+
+      line-height: 1.7;
+    }
+
+    #loginMessage {
+      margin-top: 12px;
+
+      text-align: center;
+
+      font-size: 17px;
+
+      color: #C62828;
+    }
+
+
+    /* =========================
+       主畫面
+    ========================= */
+
+    .logout {
+      text-align: right;
+
+      font-size: 13px;
+
+      margin-bottom: 10px;
+    }
+
+    .logout a {
+      color: #999;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .hint {
+      text-align: center;
+
+      color: #888;
+
+      font-size: 14px;
+
+      line-height: 1.7;
+
+      margin: 6px 0 14px;
+    }
+
+
+    /* =========================
+       掃碼
+    ========================= */
+
+    #scannerArea {
+      display: none;
+
+      margin-top: 14px;
+
+      padding: 14px;
+
+      background: #fafafa;
+
+      border-radius: 16px;
+    }
+
     #reader {
       width: 100%;
-      margin-top: 12px;
       overflow: hidden;
+
       border-radius: 12px;
     }
 
     #stopBtn {
       display: none;
+      margin-top: 12px;
     }
 
-    #checkinBtn {
-      display: none;
-      margin-top: 15px;
-    }
+
+    /* =========================
+       會員結果
+    ========================= */
 
     #result {
       display: none;
+
       margin-top: 18px;
-      padding: 18px;
-      background: #f7f7f7;
-      border-radius: 14px;
-      font-size: 19px;
-      line-height: 1.7;
+
+      padding: 20px;
+
+      border-radius: 16px;
+
+      background:
+        #F8F8F8;
+
+      font-size: 18px;
+      line-height: 1.8;
     }
 
     .member-name {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
+      font-size: 27px;
+      font-weight: 800;
+
+      color: #333;
+
+      margin-bottom: 10px;
     }
 
     .success {
-      color: #278047;
-      font-weight: bold;
+      color: #2E7D32;
+      font-weight: 700;
     }
 
     .warning {
       color: #B26A00;
-      font-weight: bold;
+      font-weight: 700;
     }
 
     .error {
       color: #C62828;
-      font-weight: bold;
+      font-weight: 700;
     }
 
-    .hint {
-      color: #777;
-      font-size: 14px;
-      line-height: 1.6;
-      text-align: center;
-      margin: 8px 0 15px;
+    #checkinBtn {
+      display: none;
     }
 
-    .logout {
-      text-align: right;
-      font-size: 14px;
-      margin-bottom: 10px;
+
+    /* =========================
+       手機
+    ========================= */
+
+    @media (max-width: 480px) {
+
+      .page {
+        padding:
+          20px 14px 32px;
+      }
+
+      .logo {
+        max-width: 125px;
+        max-height: 125px;
+      }
+
+      .association-name {
+        font-size: 21px;
+      }
+
+      .system-name {
+        font-size: 18px;
+      }
+
+      input {
+        font-size: 19px;
+      }
+
+      button {
+        font-size: 18px;
+      }
     }
 
-    .logout a {
-      color: #888;
-      text-decoration: underline;
-      cursor: pointer;
-    }
   </style>
 </head>
 
+
 <body>
 
-<div class="wrap">
+<div class="page">
 
-  <h1>🐻 會員大會電子報到</h1>
 
-  <!-- PIN登入 -->
+  <!-- =========================
+       Logo + 標題
+  ========================= -->
+
+  <div class="header">
+
+    <img
+      class="logo"
+      src="caccpa-logo.png"
+      alt="中華民國財稅會計學習交流協會 Logo"
+    >
+
+    <div class="association-name">
+      中華民國財稅會計學習交流協會
+    </div>
+
+    <div class="system-name">
+      電子簽到系統
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================
+       PIN
+  ========================= -->
+
   <div
-    class="card"
     id="loginArea"
+    class="card"
   >
+
+    <div class="pin-title">
+      工作人員登入
+    </div>
 
     <input
       id="pinInput"
       type="password"
       inputmode="numeric"
-      placeholder="工作人員 PIN"
+      placeholder="請輸入工作人員 PIN"
     >
 
     <button
-      class="brown"
-      onclick="login()">
-      進入報到系統
+      class="brown-btn"
+      onclick="login()"
+    >
+      進入電子簽到系統
     </button>
 
-    <div class="hint">
+    <div class="login-note">
       僅供會員大會工作人員使用
     </div>
 
@@ -194,56 +444,82 @@
   </div>
 
 
-  <!-- 主報到畫面 -->
+
+  <!-- =========================
+       簽到主畫面
+  ========================= -->
+
   <div
-    class="card"
     id="mainArea"
+    class="card"
   >
 
     <div class="logout">
-      <a onclick="logout()">更換工作人員 PIN</a>
+      <a onclick="logout()">
+        更換工作人員 PIN
+      </a>
     </div>
+
 
     <input
       id="memberCode"
       type="text"
-      placeholder="輸入會員編號"
+      placeholder="請輸入會員編號"
       autocomplete="off"
     >
 
+
     <button
-      class="brown"
-      onclick="searchMember()">
-      查詢會員
+      class="brown-btn"
+      onclick="searchMember()"
+    >
+      手動輸入
     </button>
+
 
     <button
       id="scanBtn"
-      class="green"
-      onclick="startScanner()">
-      📷 開始掃會員證
+      class="scan-btn"
+      onclick="startScanner()"
+    >
+      📷 掃描會員證條碼
     </button>
 
-    <button
-      id="stopBtn"
-      class="gray"
-      onclick="stopScanner()">
-      停止掃描
-    </button>
 
-    <div id="reader"></div>
+    <div id="scannerArea">
+
+      <div id="reader"></div>
+
+      <button
+        id="stopBtn"
+        class="gray-btn"
+        onclick="stopScanner()"
+      >
+        停止掃描
+      </button>
+
+      <div class="hint">
+        請將會員證條碼橫向完整放入畫面中
+      </div>
+
+    </div>
+
 
     <div class="hint">
-      可手動輸入會員編號，或直接掃會員證條碼。
+      可手動輸入會員編號，
+      或直接掃描會員證條碼
     </div>
+
 
     <div id="result"></div>
 
+
     <button
       id="checkinBtn"
-      class="pink"
-      onclick="confirmCheckIn()">
-      確認報到
+      class="pink-btn"
+      onclick="confirmCheckIn()"
+    >
+      確認簽到
     </button>
 
   </div>
@@ -251,22 +527,19 @@
 </div>
 
 
+
 <script>
 
-/*
-=========================================
-★ 熊熊只需要改這一行 ★
-
-把下面網址換成你的 GAS /exec 網址
-=========================================
-*/
+/* =========================
+   GAS API
+========================= */
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbzsCECSAwfIOURN8IF3-n24Uu4MaS1KGEqcGJTy9a1_oN7U_6nWajANNpj0PVteKk6z/exec';
 
 
 /* =========================
-   全域變數
+   全域
 ========================= */
 
 let currentPin = '';
@@ -275,36 +548,60 @@ let currentCode = '';
 let scanner = null;
 let scanning = false;
 
+
 const loginArea =
-  document.getElementById('loginArea');
+  document.getElementById(
+    'loginArea'
+  );
 
 const mainArea =
-  document.getElementById('mainArea');
+  document.getElementById(
+    'mainArea'
+  );
 
 const pinInput =
-  document.getElementById('pinInput');
+  document.getElementById(
+    'pinInput'
+  );
 
 const loginMessage =
-  document.getElementById('loginMessage');
+  document.getElementById(
+    'loginMessage'
+  );
 
 const memberCodeInput =
-  document.getElementById('memberCode');
+  document.getElementById(
+    'memberCode'
+  );
 
 const resultBox =
-  document.getElementById('result');
+  document.getElementById(
+    'result'
+  );
 
 const checkinBtn =
-  document.getElementById('checkinBtn');
+  document.getElementById(
+    'checkinBtn'
+  );
 
 const scanBtn =
-  document.getElementById('scanBtn');
+  document.getElementById(
+    'scanBtn'
+  );
 
 const stopBtn =
-  document.getElementById('stopBtn');
+  document.getElementById(
+    'stopBtn'
+  );
+
+const scannerArea =
+  document.getElementById(
+    'scannerArea'
+  );
 
 
 /* =========================
-   開頁面
+   開啟頁面
 ========================= */
 
 window.addEventListener(
@@ -312,11 +609,14 @@ window.addEventListener(
   function() {
 
     const savedPin =
-      sessionStorage.getItem('checkinPin');
+      sessionStorage.getItem(
+        'checkinPin'
+      );
 
     if (savedPin) {
 
-      currentPin = savedPin;
+      currentPin =
+        savedPin;
 
       loginArea.style.display =
         'none';
@@ -331,6 +631,7 @@ window.addEventListener(
 
       mainArea.style.display =
         'none';
+
     }
 
   }
@@ -338,116 +639,20 @@ window.addEventListener(
 
 
 /* =========================
-   PIN登入
+   Enter
 ========================= */
 
-function login() {
+pinInput.addEventListener(
+  'keydown',
+  function(e) {
 
-  const pin =
-    pinInput.value.trim();
+    if (e.key === 'Enter') {
+      login();
+    }
 
-  if (!pin) {
-
-    loginMessage.innerHTML =
-      '<div class="warning">' +
-      '請輸入工作人員 PIN' +
-      '</div>';
-
-    return;
   }
+);
 
-
-  loginMessage.innerHTML =
-    '驗證中...';
-
-
-  apiCall(
-    'find',
-    {
-      code: '__PIN_TEST__',
-      pin: pin
-    }
-  )
-  .then(function(result) {
-
-    /*
-      PIN 正確時，
-      因為 __PIN_TEST__ 不存在，
-      正常會回 NOT_FOUND。
-
-      PIN錯誤則會回 INVALID_PIN。
-    */
-
-    if (
-      result.type === 'INVALID_PIN'
-    ) {
-
-      loginMessage.innerHTML =
-        '<div class="error">' +
-        'PIN 錯誤' +
-        '</div>';
-
-      return;
-    }
-
-
-    currentPin = pin;
-
-    sessionStorage.setItem(
-      'checkinPin',
-      pin
-    );
-
-    loginArea.style.display =
-      'none';
-
-    mainArea.style.display =
-      'block';
-
-    loginMessage.innerHTML =
-      '';
-
-    memberCodeInput.focus();
-
-  })
-  .catch(function() {
-
-    loginMessage.innerHTML =
-      '<div class="error">' +
-      '無法連線到報到系統' +
-      '</div>';
-  });
-}
-
-
-function logout() {
-
-  sessionStorage.removeItem(
-    'checkinPin'
-  );
-
-  currentPin = '';
-  currentCode = '';
-
-  pinInput.value = '';
-
-  resultBox.style.display =
-    'none';
-
-  checkinBtn.style.display =
-    'none';
-
-  mainArea.style.display =
-    'none';
-
-  loginArea.style.display =
-    'block';
-}
-
-
-/* =========================
-   手動會員編號 Enter
-========================= */
 
 memberCodeInput.addEventListener(
   'keydown',
@@ -462,7 +667,128 @@ memberCodeInput.addEventListener(
 
 
 /* =========================
-   查詢會員
+   PIN 登入
+========================= */
+
+function login() {
+
+  const pin =
+    pinInput.value.trim();
+
+
+  if (!pin) {
+
+    loginMessage.innerHTML =
+      '<div class="warning">' +
+      '請輸入工作人員 PIN' +
+      '</div>';
+
+    return;
+  }
+
+
+  loginMessage.textContent =
+    '驗證中...';
+
+
+  /*
+    用不存在的會員編號測 PIN。
+    PIN 正確 → NOT_FOUND
+    PIN 錯誤 → INVALID_PIN
+  */
+
+  apiCall(
+    'find',
+    {
+      code: '__PIN_TEST__',
+      pin: pin
+    }
+  )
+
+  .then(function(result) {
+
+    if (
+      result.type ===
+      'INVALID_PIN'
+    ) {
+
+      loginMessage.innerHTML =
+        '<div class="error">' +
+        '工作人員 PIN 錯誤' +
+        '</div>';
+
+      return;
+    }
+
+
+    currentPin = pin;
+
+    sessionStorage.setItem(
+      'checkinPin',
+      pin
+    );
+
+
+    loginArea.style.display =
+      'none';
+
+    mainArea.style.display =
+      'block';
+
+    loginMessage.innerHTML =
+      '';
+
+    memberCodeInput.focus();
+
+  })
+
+  .catch(function() {
+
+    loginMessage.innerHTML =
+      '<div class="error">' +
+      '無法連線到簽到系統' +
+      '</div>';
+
+  });
+
+}
+
+
+/* =========================
+   登出
+========================= */
+
+async function logout() {
+
+  await stopScanner();
+
+  sessionStorage.removeItem(
+    'checkinPin'
+  );
+
+  currentPin = '';
+  currentCode = '';
+
+  pinInput.value = '';
+  memberCodeInput.value = '';
+
+  resultBox.style.display =
+    'none';
+
+  checkinBtn.style.display =
+    'none';
+
+  mainArea.style.display =
+    'none';
+
+  loginArea.style.display =
+    'block';
+
+}
+
+
+/* =========================
+   手動查詢
 ========================= */
 
 function searchMember() {
@@ -472,6 +798,7 @@ function searchMember() {
       memberCodeInput.value
     );
 
+
   if (!code) {
 
     showResult(
@@ -480,13 +807,18 @@ function searchMember() {
       '</div>'
     );
 
+    checkinBtn.style.display =
+      'none';
+
     return;
   }
 
 
   currentCode = code;
 
-  showResult('查詢中...');
+  showResult(
+    '查詢中...'
+  );
 
   checkinBtn.style.display =
     'none';
@@ -499,35 +831,41 @@ function searchMember() {
       pin: currentPin
     }
   )
+
   .then(function(result) {
 
+
+    /* PIN失效 */
+
+    if (
+      result.type ===
+      'INVALID_PIN'
+    ) {
+
+      sessionStorage.removeItem(
+        'checkinPin'
+      );
+
+      currentPin = '';
+
+      mainArea.style.display =
+        'none';
+
+      loginArea.style.display =
+        'block';
+
+      loginMessage.innerHTML =
+        '<div class="error">' +
+        'PIN 已失效，請重新登入' +
+        '</div>';
+
+      return;
+    }
+
+
+    /* 查無 */
+
     if (!result.success) {
-
-      if (
-        result.type ===
-        'INVALID_PIN'
-      ) {
-
-        sessionStorage.removeItem(
-          'checkinPin'
-        );
-
-        currentPin = '';
-
-        mainArea.style.display =
-          'none';
-
-        loginArea.style.display =
-          'block';
-
-        loginMessage.innerHTML =
-          '<div class="error">' +
-          'PIN 已失效，請重新登入' +
-          '</div>';
-
-        return;
-      }
-
 
       showResult(
         '<div class="error">' +
@@ -549,11 +887,15 @@ function searchMember() {
     let html =
 
       '<div class="member-name">' +
-      escapeHtml(result.name) +
+      escapeHtml(
+        result.name
+      ) +
       '</div>' +
 
       '會員編號：' +
-      escapeHtml(result.code) +
+      escapeHtml(
+        result.code
+      ) +
       '<br>' +
 
       '報名狀態：' +
@@ -562,15 +904,21 @@ function searchMember() {
           ? '✅ 已報名'
           : '⚠️ 未報名'
       ) +
+
       '<br>' +
 
-      '報到狀態：';
+      '簽到狀態：';
 
 
-    if (result.checkedIn) {
+    if (
+      result.checkedIn
+    ) {
 
       html +=
-        '✅ 已報到';
+        '<span class="success">' +
+        '✅ 已簽到' +
+        '</span>';
+
 
       if (
         result.checkInDate ||
@@ -578,7 +926,8 @@ function searchMember() {
       ) {
 
         html +=
-          '<br>報到時間：' +
+          '<br>' +
+          '簽到時間：' +
           escapeHtml(
             result.checkInDate || ''
           ) +
@@ -586,18 +935,24 @@ function searchMember() {
           escapeHtml(
             result.checkInTime || ''
           );
+
       }
+
 
       checkinBtn.style.display =
         'none';
 
+
     } else {
 
+
       html +=
-        '尚未報到';
+        '尚未簽到';
 
 
-      if (result.registered) {
+      if (
+        result.registered
+      ) {
 
         checkinBtn.style.display =
           'block';
@@ -606,14 +961,17 @@ function searchMember() {
 
         checkinBtn.style.display =
           'none';
+
       }
+
     }
 
 
     showResult(html);
 
   })
-  .catch(function(error) {
+
+  .catch(function() {
 
     showResult(
       '<div class="error">' +
@@ -622,11 +980,12 @@ function searchMember() {
     );
 
   });
+
 }
 
 
 /* =========================
-   確認報到
+   確認簽到
 ========================= */
 
 function confirmCheckIn() {
@@ -640,7 +999,7 @@ function confirmCheckIn() {
     true;
 
   checkinBtn.textContent =
-    '報到中...';
+    '簽到中...';
 
 
   apiCall(
@@ -650,13 +1009,15 @@ function confirmCheckIn() {
       pin: currentPin
     }
   )
+
   .then(function(result) {
+
 
     checkinBtn.disabled =
       false;
 
     checkinBtn.textContent =
-      '確認報到';
+      '確認簽到';
 
 
     if (!result.success) {
@@ -680,18 +1041,23 @@ function confirmCheckIn() {
     showResult(
 
       '<div class="member-name">' +
-      escapeHtml(result.name) +
+      escapeHtml(
+        result.name
+      ) +
       '</div>' +
 
       '<div class="success">' +
-      '✅ 報到成功' +
+      '✅ 簽到成功' +
       '</div>' +
 
       '會員編號：' +
-      escapeHtml(result.code) +
+      escapeHtml(
+        result.code
+      ) +
+
       '<br>' +
 
-      '報到時間：' +
+      '簽到時間：' +
       escapeHtml(
         result.checkInDate
       ) +
@@ -707,32 +1073,39 @@ function confirmCheckIn() {
       'none';
 
 
-    // 2秒後準備下一位
+    /*
+      2 秒後準備下一位
+    */
+
     setTimeout(
       resetForNextMember,
       2000
     );
 
   })
+
   .catch(function() {
 
     checkinBtn.disabled =
       false;
 
     checkinBtn.textContent =
-      '確認報到';
+      '確認簽到';
+
 
     showResult(
       '<div class="error">' +
-      '報到連線失敗，請稍後再試' +
+      '簽到連線失敗，請稍後再試' +
       '</div>'
     );
+
   });
+
 }
 
 
 /* =========================
-   開始掃條碼
+   掃描會員證
 ========================= */
 
 async function startScanner() {
@@ -744,17 +1117,23 @@ async function startScanner() {
     'none';
 
 
+  if (scanning) {
+    return;
+  }
+
+
   try {
 
     scanner =
       new Html5Qrcode(
-        "reader"
+        'reader'
       );
 
 
     const config = {
 
       fps: 12,
+
 
       qrbox:
         function(
@@ -771,11 +1150,19 @@ async function startScanner() {
               360
             );
 
+
           return {
-            width: width,
-            height: 120
+
+            width:
+              width,
+
+            height:
+              120
+
           };
+
         },
+
 
       formatsToSupport: [
 
@@ -786,14 +1173,19 @@ async function startScanner() {
           .CODE_128
 
       ]
+
     };
+
+
+    scannerArea.style.display =
+      'block';
 
 
     await scanner.start(
 
       {
         facingMode:
-          "environment"
+          'environment'
       },
 
       config,
@@ -801,13 +1193,14 @@ async function startScanner() {
       onScanSuccess,
 
       function() {
-        // 持續掃描時不顯示錯誤
+        // 掃描過程不用顯示辨識失敗
       }
 
     );
 
 
     scanning = true;
+
 
     scanBtn.style.display =
       'none';
@@ -818,34 +1211,38 @@ async function startScanner() {
 
   } catch (error) {
 
+
+    scannerArea.style.display =
+      'none';
+
+
     showResult(
 
       '<div class="error">' +
-      '無法開啟相機。<br><br>' +
-      escapeHtml(
-        String(error)
-      ) +
+      '無法開啟相機，' +
+      '請改用手動輸入。' +
       '</div>'
 
     );
 
   }
+
 }
 
 
 /* =========================
-   條碼成功
+   掃碼成功
 ========================= */
 
 async function onScanSuccess(
-  decodedText,
-  decodedResult
+  decodedText
 ) {
 
   const code =
     normalizeCode(
       decodedText
     );
+
 
   if (!code) {
     return;
@@ -857,6 +1254,7 @@ async function onScanSuccess(
 
   memberCodeInput.value =
     code;
+
 
   currentCode =
     code;
@@ -874,16 +1272,20 @@ async function onScanSuccess(
   );
 
 
-  // 自動查Google Sheet
+  /*
+    掃完自動查 Google Sheet
+  */
+
   setTimeout(
     searchMember,
     250
   );
+
 }
 
 
 /* =========================
-   停止相機
+   停止掃描
 ========================= */
 
 async function stopScanner() {
@@ -900,18 +1302,27 @@ async function stopScanner() {
       await scanner.stop();
 
       scanner.clear();
+
     }
 
   } catch (e) {
+
     // 不顯示
+
   }
+
+
+  scannerArea.style.display =
+    'none';
 
 
   scanBtn.style.display =
     'block';
 
+
   stopBtn.style.display =
     'none';
+
 }
 
 
@@ -923,9 +1334,12 @@ function resetForNextMember() {
 
   currentCode = '';
 
-  memberCodeInput.value = '';
+  memberCodeInput.value =
+    '';
 
-  resultBox.innerHTML = '';
+  resultBox.innerHTML =
+    '';
+
   resultBox.style.display =
     'none';
 
@@ -933,11 +1347,12 @@ function resetForNextMember() {
     'none';
 
   memberCodeInput.focus();
+
 }
 
 
 /* =========================
-   API JSONP
+   GAS JSONP API
 ========================= */
 
 function apiCall(
@@ -946,12 +1361,20 @@ function apiCall(
 ) {
 
   return new Promise(
-    function(resolve, reject) {
+    function(
+      resolve,
+      reject
+    ) {
+
 
       const callbackName =
+
         'jsonp_' +
+
         Date.now() +
+
         '_' +
+
         Math.floor(
           Math.random() *
           100000
@@ -974,19 +1397,20 @@ function apiCall(
       );
 
 
-      Object.keys(
-        params || {}
-      )
-      .forEach(
-        function(key) {
+      Object
+        .keys(
+          params || {}
+        )
+        .forEach(
+          function(key) {
 
-          query.set(
-            key,
-            params[key]
-          );
+            query.set(
+              key,
+              params[key]
+            );
 
-        }
-      );
+          }
+        );
 
 
       query.set(
@@ -995,7 +1419,9 @@ function apiCall(
       );
 
 
-      window[callbackName] =
+      window[
+        callbackName
+      ] =
         function(data) {
 
           resolve(data);
@@ -1034,27 +1460,33 @@ function apiCall(
           script.parentNode
         ) {
 
-          script.parentNode
+          script
+            .parentNode
             .removeChild(
               script
             );
+
         }
+
       }
 
 
       script.src =
+
         API_URL +
+
         '?' +
+
         query.toString();
 
 
-      document.body
+      document
+        .body
         .appendChild(
           script
         );
 
 
-      // 15秒逾時
       setTimeout(
         function() {
 
@@ -1071,14 +1503,18 @@ function apiCall(
             );
 
             cleanup();
+
           }
 
         },
+
         15000
+
       );
 
     }
   );
+
 }
 
 
@@ -1086,54 +1522,79 @@ function apiCall(
    工具
 ========================= */
 
-function normalizeCode(value) {
+function normalizeCode(
+  value
+) {
 
   return String(
     value || ''
   )
+
   .trim()
+
   .toUpperCase()
-  .replace(/^\*/, '')
-  .replace(/\*$/, '')
+
+  .replace(
+    /^\*/,
+    ''
+  )
+
+  .replace(
+    /\*$/,
+    ''
+  )
+
   .trim();
+
 }
 
 
-function showResult(html) {
+function showResult(
+  html
+) {
 
   resultBox.style.display =
     'block';
 
   resultBox.innerHTML =
     html;
+
 }
 
 
-function escapeHtml(value) {
+function escapeHtml(
+  value
+) {
 
   return String(
     value || ''
   )
+
   .replace(
     /&/g,
     '&amp;'
   )
+
   .replace(
     /</g,
     '&lt;'
   )
+
   .replace(
     />/g,
     '&gt;'
   )
+
   .replace(
     /"/g,
     '&quot;'
   )
+
   .replace(
     /'/g,
     '&#039;'
   );
+
 }
 
 </script>

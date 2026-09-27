@@ -9,25 +9,58 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <meta name="theme-color" content="#FFF6E0">
-
   <title>
     中華民國財稅會計學習交流協會電子簽到系統
   </title>
 
-  <!-- iPhone 加到主畫面的桌面圖示 -->
+  <!-- App 主題色 -->
+  <meta
+    name="theme-color"
+    content="#FFF6E0"
+  >
+
+  <!-- iPhone 主畫面設定 -->
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="財稅會計簽到"
+  >
+
+  <!-- iPhone 桌面圖示 -->
   <link
     rel="apple-touch-icon"
-    href="app-icon-180.png"
+    sizes="180x180"
+    href="https://doris19861106.github.io/member-checkin/app-icon-180.png?v=2"
   >
-  
-  <link rel="manifest" href="manifest.json">
 
-  <!-- 手機條碼掃描 -->
+  <!-- PWA -->
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <!-- 瀏覽器圖示 -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="app-icon-180.png?v=2"
+  >
+
+  <!-- 條碼掃描 -->
   <script
     src="https://unpkg.com/html5-qrcode"
     type="text/javascript">
   </script>
+
 
   <style>
 
@@ -139,8 +172,7 @@
     }
 
     input:focus {
-      border-color:
-        #AC8F6C;
+      border-color: #AC8F6C;
     }
 
 
@@ -165,32 +197,24 @@
     }
 
     .brown-btn {
-      background:
-        #AC8F6C;
-
+      background: #AC8F6C;
       color: #fff;
     }
 
     .scan-btn {
-      background:
-        #84AAA6;
-
+      background: #84AAA6;
       color: #fff;
     }
 
     .pink-btn {
-      background:
-        #FFA3B2;
-
+      background: #FFA3B2;
       color: #fff;
 
       margin-top: 15px;
     }
 
     .gray-btn {
-      background:
-        #999;
-
+      background: #999;
       color: #fff;
     }
 
@@ -221,15 +245,6 @@
       color: #6f6255;
 
       margin-bottom: 14px;
-    }
-
-    .login-note {
-      text-align: center;
-
-      font-size: 14px;
-      color: #888;
-
-      line-height: 1.7;
     }
 
     #loginMessage {
@@ -316,8 +331,7 @@
 
       border-radius: 16px;
 
-      background:
-        #F8F8F8;
+      background: #F8F8F8;
 
       font-size: 18px;
       line-height: 1.8;
@@ -386,6 +400,7 @@
     }
 
   </style>
+
 </head>
 
 
@@ -419,7 +434,7 @@
 
 
   <!-- =========================
-       PIN
+       工作人員登入
   ========================= -->
 
   <div
@@ -445,10 +460,6 @@
       進入電子簽到系統
     </button>
 
-    <div class="login-note">
-      僅供會員大會工作人員使用
-    </div>
-
     <div id="loginMessage"></div>
 
   </div>
@@ -465,9 +476,11 @@
   >
 
     <div class="logout">
+
       <a onclick="logout()">
         更換工作人員 PIN
       </a>
+
     </div>
 
 
@@ -623,21 +636,27 @@ window.addEventListener(
         'checkinPin'
       );
 
+
     if (savedPin) {
 
       currentPin =
         savedPin;
 
+
       loginArea.style.display =
         'none';
+
 
       mainArea.style.display =
         'block';
 
+
     } else {
+
 
       loginArea.style.display =
         'block';
+
 
       mainArea.style.display =
         'none';
@@ -686,13 +705,11 @@ function login() {
     pinInput.value.trim();
 
 
+  /*
+    沒輸入 PIN：
+    不顯示任何多餘訊息
+  */
   if (!pin) {
-
-    loginMessage.innerHTML =
-      '<div class="warning">' +
-      '請輸入工作人員 PIN' +
-      '</div>';
-
     return;
   }
 
@@ -704,56 +721,71 @@ function login() {
   apiCall(
     'find',
     {
-      code: '__PIN_TEST__',
-      pin: pin
+      code:
+        '__PIN_TEST__',
+
+      pin:
+        pin
     }
   )
 
-  .then(function(result) {
 
-    if (
-      result.type ===
-      'INVALID_PIN'
-    ) {
+  .then(
+    function(result) {
+
+
+      if (
+        result.type ===
+        'INVALID_PIN'
+      ) {
+
+        loginMessage.innerHTML =
+          '<div class="error">' +
+          '工作人員 PIN 錯誤' +
+          '</div>';
+
+        return;
+      }
+
+
+      currentPin =
+        pin;
+
+
+      sessionStorage.setItem(
+        'checkinPin',
+        pin
+      );
+
+
+      loginArea.style.display =
+        'none';
+
+
+      mainArea.style.display =
+        'block';
+
+
+      loginMessage.innerHTML =
+        '';
+
+
+      memberCodeInput.focus();
+
+    }
+  )
+
+
+  .catch(
+    function() {
 
       loginMessage.innerHTML =
         '<div class="error">' +
-        '工作人員 PIN 錯誤' +
+        '無法連線到簽到系統' +
         '</div>';
 
-      return;
     }
-
-
-    currentPin = pin;
-
-    sessionStorage.setItem(
-      'checkinPin',
-      pin
-    );
-
-
-    loginArea.style.display =
-      'none';
-
-    mainArea.style.display =
-      'block';
-
-    loginMessage.innerHTML =
-      '';
-
-    memberCodeInput.focus();
-
-  })
-
-  .catch(function() {
-
-    loginMessage.innerHTML =
-      '<div class="error">' +
-      '無法連線到簽到系統' +
-      '</div>';
-
-  });
+  );
 
 }
 
@@ -766,24 +798,32 @@ async function logout() {
 
   await stopScanner();
 
+
   sessionStorage.removeItem(
     'checkinPin'
   );
 
+
   currentPin = '';
   currentCode = '';
 
+
   pinInput.value = '';
+
   memberCodeInput.value = '';
+
 
   resultBox.style.display =
     'none';
 
+
   checkinBtn.style.display =
     'none';
 
+
   mainArea.style.display =
     'none';
+
 
   loginArea.style.display =
     'block';
@@ -811,18 +851,23 @@ function searchMember() {
       '</div>'
     );
 
+
     checkinBtn.style.display =
       'none';
+
 
     return;
   }
 
 
-  currentCode = code;
+  currentCode =
+    code;
+
 
   showResult(
     '查詢中...'
   );
+
 
   checkinBtn.style.display =
     'none';
@@ -831,156 +876,178 @@ function searchMember() {
   apiCall(
     'find',
     {
-      code: code,
-      pin: currentPin
+      code:
+        code,
+
+      pin:
+        currentPin
     }
   )
 
-  .then(function(result) {
 
-
-    if (
-      result.type ===
-      'INVALID_PIN'
-    ) {
-
-      sessionStorage.removeItem(
-        'checkinPin'
-      );
-
-      currentPin = '';
-
-      mainArea.style.display =
-        'none';
-
-      loginArea.style.display =
-        'block';
-
-      loginMessage.innerHTML =
-        '<div class="error">' +
-        'PIN 已失效，請重新登入' +
-        '</div>';
-
-      return;
-    }
-
-
-    if (!result.success) {
-
-      showResult(
-        '<div class="error">' +
-        '⚠️ ' +
-        escapeHtml(
-          result.message
-        ) +
-        '</div>'
-      );
-
-      return;
-    }
-
-
-    currentCode =
-      result.code;
-
-
-    let html =
-
-      '<div class="member-name">' +
-      escapeHtml(
-        result.name
-      ) +
-      '</div>' +
-
-      '會員編號：' +
-      escapeHtml(
-        result.code
-      ) +
-
-      '<br>' +
-
-      '報名狀態：' +
-      (
-        result.registered
-          ? '✅ 已報名'
-          : '⚠️ 未報名'
-      ) +
-
-      '<br>' +
-
-      '簽到狀態：';
-
-
-    if (
-      result.checkedIn
-    ) {
-
-      html +=
-        '<span class="success">' +
-        '✅ 已簽到' +
-        '</span>';
+  .then(
+    function(result) {
 
 
       if (
-        result.checkInDate ||
-        result.checkInTime
+        result.type ===
+        'INVALID_PIN'
       ) {
 
-        html +=
-          '<br>' +
-          '簽到時間：' +
-          escapeHtml(
-            result.checkInDate || ''
-          ) +
-          ' ' +
-          escapeHtml(
-            result.checkInTime || ''
-          );
+        sessionStorage.removeItem(
+          'checkinPin'
+        );
 
+
+        currentPin = '';
+
+
+        mainArea.style.display =
+          'none';
+
+
+        loginArea.style.display =
+          'block';
+
+
+        loginMessage.innerHTML =
+          '<div class="error">' +
+          'PIN 已失效，請重新登入' +
+          '</div>';
+
+
+        return;
       }
 
 
-      checkinBtn.style.display =
-        'none';
+      if (!result.success) {
+
+        showResult(
+          '<div class="error">' +
+          '⚠️ ' +
+          escapeHtml(
+            result.message
+          ) +
+          '</div>'
+        );
+
+        return;
+      }
 
 
-    } else {
+      currentCode =
+        result.code;
 
 
-      html +=
-        '尚未簽到';
+      let html =
+
+        '<div class="member-name">' +
+        escapeHtml(
+          result.name
+        ) +
+        '</div>' +
+
+        '會員編號：' +
+        escapeHtml(
+          result.code
+        ) +
+
+        '<br>' +
+
+        '報名狀態：' +
+
+        (
+          result.registered
+            ? '✅ 已報名'
+            : '⚠️ 未報名'
+        ) +
+
+        '<br>' +
+
+        '簽到狀態：';
 
 
       if (
-        result.registered
+        result.checkedIn
       ) {
 
-        checkinBtn.style.display =
-          'block';
+        html +=
+          '<span class="success">' +
+          '✅ 已簽到' +
+          '</span>';
 
-      } else {
+
+        if (
+          result.checkInDate ||
+          result.checkInTime
+        ) {
+
+          html +=
+            '<br>' +
+            '簽到時間：' +
+
+            escapeHtml(
+              result.checkInDate || ''
+            ) +
+
+            ' ' +
+
+            escapeHtml(
+              result.checkInTime || ''
+            );
+
+        }
+
 
         checkinBtn.style.display =
           'none';
 
+
+      } else {
+
+
+        html +=
+          '尚未簽到';
+
+
+        if (
+          result.registered
+        ) {
+
+          checkinBtn.style.display =
+            'block';
+
+
+        } else {
+
+
+          checkinBtn.style.display =
+            'none';
+
+        }
+
       }
 
+
+      showResult(
+        html
+      );
+
     }
+  )
 
 
-    showResult(html);
+  .catch(
+    function() {
 
-  })
+      showResult(
+        '<div class="error">' +
+        '連線失敗，請稍後再試' +
+        '</div>'
+      );
 
-  .catch(function() {
-
-    showResult(
-      '<div class="error">' +
-      '連線失敗，請稍後再試' +
-      '</div>'
-    );
-
-  });
+    }
+  );
 
 }
 
@@ -999,6 +1066,7 @@ function confirmCheckIn() {
   checkinBtn.disabled =
     true;
 
+
   checkinBtn.textContent =
     '簽到中...';
 
@@ -1006,97 +1074,116 @@ function confirmCheckIn() {
   apiCall(
     'checkin',
     {
-      code: currentCode,
-      pin: currentPin
+      code:
+        currentCode,
+
+      pin:
+        currentPin
     }
   )
 
-  .then(function(result) {
+
+  .then(
+    function(result) {
 
 
-    checkinBtn.disabled =
-      false;
-
-    checkinBtn.textContent =
-      '確認簽到';
+      checkinBtn.disabled =
+        false;
 
 
-    if (!result.success) {
+      checkinBtn.textContent =
+        '確認簽到';
+
+
+      if (!result.success) {
+
+        showResult(
+          '<div class="warning">' +
+          '⚠️ ' +
+          escapeHtml(
+            result.message
+          ) +
+          '</div>'
+        );
+
+
+        checkinBtn.style.display =
+          'none';
+
+
+        return;
+      }
+
 
       showResult(
-        '<div class="warning">' +
-        '⚠️ ' +
+
+        '<div class="member-name">' +
+
         escapeHtml(
-          result.message
+          result.name
         ) +
-        '</div>'
+
+        '</div>' +
+
+        '<div class="success">' +
+        '✅ 簽到成功' +
+        '</div>' +
+
+        '會員編號：' +
+
+        escapeHtml(
+          result.code
+        ) +
+
+        '<br>' +
+
+        '簽到時間：' +
+
+        escapeHtml(
+          result.checkInDate
+        ) +
+
+        ' ' +
+
+        escapeHtml(
+          result.checkInTime
+        )
+
       );
+
 
       checkinBtn.style.display =
         'none';
 
-      return;
+
+      setTimeout(
+        resetForNextMember,
+        2000
+      );
+
     }
+  )
 
 
-    showResult(
+  .catch(
+    function() {
 
-      '<div class="member-name">' +
-      escapeHtml(
-        result.name
-      ) +
-      '</div>' +
-
-      '<div class="success">' +
-      '✅ 簽到成功' +
-      '</div>' +
-
-      '會員編號：' +
-      escapeHtml(
-        result.code
-      ) +
-
-      '<br>' +
-
-      '簽到時間：' +
-      escapeHtml(
-        result.checkInDate
-      ) +
-      ' ' +
-      escapeHtml(
-        result.checkInTime
-      )
-
-    );
+      checkinBtn.disabled =
+        false;
 
 
-    checkinBtn.style.display =
-      'none';
+      checkinBtn.textContent =
+        '確認簽到';
 
 
-    setTimeout(
-      resetForNextMember,
-      2000
-    );
+      showResult(
+        '<div class="error">' +
+        '簽到連線失敗，請稍後再試' +
+        '</div>'
+      );
 
-  })
-
-  .catch(function() {
-
-    checkinBtn.disabled =
-      false;
-
-    checkinBtn.textContent =
-      '確認簽到';
-
-
-    showResult(
-      '<div class="error">' +
-      '簽到連線失敗，請稍後再試' +
-      '</div>'
-    );
-
-  });
+    }
+  );
 
 }
 
@@ -1109,6 +1196,7 @@ async function startScanner() {
 
   resultBox.style.display =
     'none';
+
 
   checkinBtn.style.display =
     'none';
@@ -1129,7 +1217,8 @@ async function startScanner() {
 
     const config = {
 
-      fps: 12,
+      fps:
+        12,
 
 
       qrbox:
@@ -1139,12 +1228,16 @@ async function startScanner() {
         ) {
 
           const width =
+
             Math.min(
+
               Math.floor(
                 viewfinderWidth *
                 0.85
               ),
+
               360
+
             );
 
 
@@ -1195,11 +1288,13 @@ async function startScanner() {
     );
 
 
-    scanning = true;
+    scanning =
+      true;
 
 
     scanBtn.style.display =
       'none';
+
 
     stopBtn.style.display =
       'block';
@@ -1213,12 +1308,9 @@ async function startScanner() {
 
 
     showResult(
-
       '<div class="error">' +
-      '無法開啟相機，' +
-      '請改用手動輸入。' +
+      '無法開啟相機，請改用手動輸入。' +
       '</div>'
-
     );
 
   }
@@ -1263,7 +1355,9 @@ async function onScanSuccess(
     '</div>' +
 
     '會員編號：' +
-    escapeHtml(code)
+    escapeHtml(
+      code
+    )
 
   );
 
@@ -1284,21 +1378,25 @@ async function stopScanner() {
 
   try {
 
+
     if (
       scanner &&
       scanning
     ) {
 
-      scanning = false;
+      scanning =
+        false;
+
 
       await scanner.stop();
+
 
       scanner.clear();
 
     }
 
-  } catch (e) {
 
+  } catch (e) {
   }
 
 
@@ -1322,19 +1420,25 @@ async function stopScanner() {
 
 function resetForNextMember() {
 
-  currentCode = '';
+  currentCode =
+    '';
+
 
   memberCodeInput.value =
     '';
 
+
   resultBox.innerHTML =
     '';
+
 
   resultBox.style.display =
     'none';
 
+
   checkinBtn.style.display =
     'none';
+
 
   memberCodeInput.focus();
 
@@ -1351,6 +1455,7 @@ function apiCall(
 ) {
 
   return new Promise(
+
     function(
       resolve,
       reject
@@ -1414,7 +1519,9 @@ function apiCall(
       ] =
         function(data) {
 
-          resolve(data);
+          resolve(
+            data
+          );
 
           cleanup();
 
@@ -1430,6 +1537,7 @@ function apiCall(
             )
           );
 
+
           cleanup();
 
         };
@@ -1443,7 +1551,8 @@ function apiCall(
             callbackName
           ];
 
-        } catch (e) {}
+        } catch (e) {
+        }
 
 
         if (
@@ -1478,6 +1587,7 @@ function apiCall(
 
 
       setTimeout(
+
         function() {
 
           if (
@@ -1492,6 +1602,7 @@ function apiCall(
               )
             );
 
+
             cleanup();
 
           }
@@ -1503,6 +1614,7 @@ function apiCall(
       );
 
     }
+
   );
 
 }
@@ -1545,6 +1657,7 @@ function showResult(
 
   resultBox.style.display =
     'block';
+
 
   resultBox.innerHTML =
     html;

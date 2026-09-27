@@ -10,7 +10,6 @@
 
   <title>會員大會電子報到</title>
 
-  <!-- 條碼掃描套件 -->
   <script
     src="https://unpkg.com/html5-qrcode"
     type="text/javascript">
@@ -47,6 +46,15 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
 
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 24px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
     button {
       width: 100%;
       padding: 16px;
@@ -57,13 +65,18 @@
       margin-bottom: 14px;
     }
 
+    #searchBtn {
+      background: #AC8F6C;
+      color: white;
+    }
+
     #startBtn {
       background: #7FA6A1;
       color: white;
     }
 
     #stopBtn {
-      background: #AC8F6C;
+      background: #999;
       color: white;
       display: none;
     }
@@ -81,14 +94,24 @@
       border-radius: 12px;
       background: #f7f7f7;
       font-size: 20px;
-      line-height: 1.6;
+      line-height: 1.7;
       display: none;
+    }
+
+    .name {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .success {
       color: #26834a;
       font-weight: bold;
-      font-size: 24px;
+    }
+
+    .warning {
+      color: #b26a00;
+      font-weight: bold;
     }
 
     .error {
@@ -114,6 +137,19 @@
 
   <div class="card">
 
+    <input
+      id="memberCode"
+      type="text"
+      placeholder="輸入會員編號"
+      autocomplete="off"
+    >
+
+    <button
+      id="searchBtn"
+      onclick="manualSearch()">
+      查詢會員
+    </button>
+
     <button
       id="startBtn"
       onclick="startScanner()">
@@ -129,8 +165,7 @@
     <div id="reader"></div>
 
     <div class="hint">
-      第一次使用時，請允許瀏覽器使用相機。<br>
-      將會員證條碼橫向完整放入畫面中。
+      可手動輸入會員編號，或直接掃會員證條碼。
     </div>
 
     <div id="result"></div>
@@ -142,8 +177,57 @@
 
 <script>
 
+/*
+  ⚠️ 這裡要換成你的 GAS Web App 網址
+*/
+const API_URL =
+  '請把你的_GAS_WEB_APP網址_貼在這裡';
+
 let scanner = null;
 let scanning = false;
+
+const memberCodeInput =
+  document.getElementById('memberCode');
+
+const resultBox =
+  document.getElementById('result');
+
+
+memberCodeInput.addEventListener(
+  'keydown',
+  function(e) {
+
+    if (e.key === 'Enter') {
+      manualSearch();
+    }
+
+  }
+);
+
+
+/* =========================
+   手動查詢
+========================= */
+
+function manualSearch() {
+
+  const code =
+    normalizeCode(
+      memberCodeInput.value
+    );
+
+  if (!code) {
+
+    showMessage(
+      '請輸入會員編號',
+      'warning'
+    );
+
+    return;
+  }
+
+  lookupMember(code);
+}
 
 
 /* =========================
@@ -151,9 +235,6 @@ let scanning = false;
 ========================= */
 
 async function startScanner() {
-
-  const resultBox =
-    document.getElementById('result');
 
   const startBtn =
     document.getElementById('startBtn');
@@ -172,11 +253,16 @@ async function startScanner() {
 
       fps: 12,
 
-      qrbox: function(viewfinderWidth, viewfinderHeight) {
+      qrbox: function(
+        viewfinderWidth,
+        viewfinderHeight
+      ) {
 
         const width =
           Math.min(
-            Math.floor(viewfinderWidth * 0.85),
+            Math.floor(
+              viewfinderWidth * 0.85
+            ),
             360
           );
 
@@ -193,7 +279,6 @@ async function startScanner() {
         Html5QrcodeSupportedFormats.CODE_128
 
       ]
-
     };
 
 
@@ -208,7 +293,7 @@ async function startScanner() {
       onScanSuccess,
 
       function() {
-        // 掃描過程讀不到時不顯示錯誤
+        // 掃不到時不顯示錯誤
       }
 
     );
@@ -222,14 +307,11 @@ async function startScanner() {
 
   } catch (error) {
 
-    resultBox.style.display = 'block';
-
-    resultBox.innerHTML =
-      '<div class="error">' +
-      '無法開啟相機。<br><br>' +
-      String(error) +
-      '</div>';
-
+    showMessage(
+      '無法開啟相機：' +
+      String(error),
+      'error'
+    );
   }
 }
 
@@ -243,48 +325,18 @@ async function onScanSuccess(
   decodedResult
 ) {
 
-  let code =
-    String(decodedText || '')
-      .trim()
-      .toUpperCase();
-
-  /*
-    Code 39 有些掃描結果可能會包含 *
-    *300071* → 300071
-  */
-  code = code
-    .replace(/^\*/, '')
-    .replace(/\*$/, '')
-    .trim();
-
+  const code =
+    normalizeCode(decodedText);
 
   if (!code) {
     return;
   }
 
+  memberCodeInput.value = code;
 
   await stopScanner();
 
-
-  const resultBox =
-    document.getElementById('result');
-
-  resultBox.style.display = 'block';
-
-  resultBox.innerHTML =
-
-    '<div class="success">' +
-    '✅ 會員證讀取成功' +
-    '</div>' +
-
-    '<br>' +
-
-    '會員編號：' +
-
-    '<strong>' +
-    code +
-    '</strong>';
-
+  lookupMember(code);
 }
 
 
@@ -300,7 +352,6 @@ async function stopScanner() {
   const stopBtn =
     document.getElementById('stopBtn');
 
-
   try {
 
     if (
@@ -313,18 +364,170 @@ async function stopScanner() {
       await scanner.stop();
 
       scanner.clear();
-
     }
 
   } catch (error) {
 
     console.log(error);
-
   }
-
 
   startBtn.style.display = 'block';
   stopBtn.style.display = 'none';
+}
+
+
+/* =========================
+   查 Google Sheet
+========================= */
+
+function lookupMember(code) {
+
+  showMessage(
+    '查詢中...',
+    ''
+  );
+
+  const callbackName =
+    'jsonpCallback_' +
+    Date.now();
+
+  window[callbackName] =
+    function(data) {
+
+      delete window[callbackName];
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      showMember(data);
+    };
+
+
+  const script =
+    document.createElement('script');
+
+  script.src =
+    API_URL +
+    '?action=find' +
+    '&code=' +
+    encodeURIComponent(code) +
+    '&callback=' +
+    encodeURIComponent(callbackName);
+
+  script.onerror =
+    function() {
+
+      delete window[callbackName];
+
+      showMessage(
+        '連線失敗，請稍後再試',
+        'error'
+      );
+    };
+
+  document.body.appendChild(script);
+}
+
+
+/* =========================
+   顯示會員資料
+========================= */
+
+function showMember(data) {
+
+  resultBox.style.display = 'block';
+
+  if (!data || !data.success) {
+
+    resultBox.innerHTML =
+      '<div class="error">' +
+      '⚠️ ' +
+      (
+        data && data.message
+          ? data.message
+          : '查無會員資料'
+      ) +
+      '</div>';
+
+    return;
+  }
+
+  resultBox.innerHTML =
+
+    '<div class="name">' +
+    escapeHtml(data.name) +
+    '</div>' +
+
+    '會員編號：' +
+    escapeHtml(data.code) +
+    '<br>' +
+
+    '報名狀態：' +
+    (
+      data.registered
+        ? '✅ 已報名'
+        : '⚠️ 未報名'
+    ) +
+
+    '<br>' +
+
+    '報到狀態：' +
+    (
+      data.checkedIn
+        ? '✅ 已報到'
+        : '尚未報到'
+    );
+}
+
+
+/* =========================
+   清理會員編號
+========================= */
+
+function normalizeCode(value) {
+
+  return String(value || '')
+    .trim()
+    .toUpperCase()
+    .replace(/^\*/, '')
+    .replace(/\*$/, '')
+    .trim();
+}
+
+
+/* =========================
+   顯示訊息
+========================= */
+
+function showMessage(
+  message,
+  type
+) {
+
+  resultBox.style.display = 'block';
+
+  resultBox.innerHTML =
+    '<div class="' +
+    type +
+    '">' +
+    escapeHtml(message) +
+    '</div>';
+}
+
+
+/* =========================
+   HTML 安全處理
+========================= */
+
+function escapeHtml(value) {
+
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 </script>

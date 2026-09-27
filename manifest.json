@@ -1,0 +1,16 @@
+{
+  "name": "中華民國財稅會計學習交流協會電子簽到系統",
+  "short_name": "財稅會計簽到",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF6E0",
+  "theme_color": "#FFF6E0",
+  "icons": [
+    {
+      "src": "app-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

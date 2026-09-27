@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>會員大會電子報到</title>
+
+  <!-- 條碼掃描套件 -->
+  <script
+    src="https://unpkg.com/html5-qrcode"
+    type="text/javascript">
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      background: #FFF6E0;
+      color: #333;
+    }
+
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 20px;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    #startBtn {
+      background: #7FA6A1;
+      color: white;
+    }
+
+    #stopBtn {
+      background: #AC8F6C;
+      color: white;
+      display: none;
+    }
+
+    #reader {
+      width: 100%;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      background: #f7f7f7;
+      font-size: 20px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .success {
+      color: #26834a;
+      font-weight: bold;
+      font-size: 24px;
+    }
+
+    .error {
+      color: #c62828;
+      font-weight: bold;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: #777;
+      font-size: 15px;
+      line-height: 1.6;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <h1>🐻 會員大會電子報到</h1>
+
+  <div class="card">
+
+    <button
+      id="startBtn"
+      onclick="startScanner()">
+      📷 開始掃會員證
+    </button>
+
+    <button
+      id="stopBtn"
+      onclick="stopScanner()">
+      停止掃描
+    </button>
+
+    <div id="reader"></div>
+
+    <div class="hint">
+      第一次使用時，請允許瀏覽器使用相機。<br>
+      將會員證條碼橫向完整放入畫面中。
+    </div>
+
+    <div id="result"></div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+let scanner = null;
+let scanning = false;
+
+
+/* =========================
+   啟動掃描
+========================= */
+
+async function startScanner() {
+
+  const resultBox =
+    document.getElementById('result');
+
+  const startBtn =
+    document.getElementById('startBtn');
+
+  const stopBtn =
+    document.getElementById('stopBtn');
+
+  resultBox.style.display = 'none';
+  resultBox.innerHTML = '';
+
+  try {
+
+    scanner = new Html5Qrcode("reader");
+
+    const config = {
+
+      fps: 12,
+
+      qrbox: function(viewfinderWidth, viewfinderHeight) {
+
+        const width =
+          Math.min(
+            Math.floor(viewfinderWidth * 0.85),
+            360
+          );
+
+        return {
+          width: width,
+          height: 120
+        };
+      },
+
+      formatsToSupport: [
+
+        Html5QrcodeSupportedFormats.CODE_39,
+
+        Html5QrcodeSupportedFormats.CODE_128
+
+      ]
+
+    };
+
+
+    await scanner.start(
+
+      {
+        facingMode: {
+          ideal: "environment"
+        }
+      },
+
+      config,
+
+      onScanSuccess,
+
+      function() {
+        // 掃描過程讀不到時不顯示錯誤
+      }
+
+    );
+
+
+    scanning = true;
+
+    startBtn.style.display = 'none';
+    stopBtn.style.display = 'block';
+
+
+  } catch (error) {
+
+    resultBox.style.display = 'block';
+
+    resultBox.innerHTML =
+      '<div class="error">' +
+      '無法開啟相機。<br><br>' +
+      String(error) +
+      '</div>';
+
+  }
+}
+
+
+/* =========================
+   掃描成功
+========================= */
+
+async function onScanSuccess(
+  decodedText,
+  decodedResult
+) {
+
+  let code =
+    String(decodedText || '')
+      .trim()
+      .toUpperCase();
+
+  /*
+    Code 39 有些掃描結果可能會包含 *
+    *300071* → 300071
+  */
+  code = code
+    .replace(/^\*/, '')
+    .replace(/\*$/, '')
+    .trim();
+
+
+  if (!code) {
+    return;
+  }
+
+
+  await stopScanner();
+
+
+  const resultBox =
+    document.getElementById('result');
+
+  resultBox.style.display = 'block';
+
+  resultBox.innerHTML =
+
+    '<div class="success">' +
+    '✅ 會員證讀取成功' +
+    '</div>' +
+
+    '<br>' +
+
+    '會員編號：' +
+
+    '<strong>' +
+    code +
+    '</strong>';
+
+}
+
+
+/* =========================
+   停止掃描
+========================= */
+
+async function stopScanner() {
+
+  const startBtn =
+    document.getElementById('startBtn');
+
+  const stopBtn =
+    document.getElementById('stopBtn');
+
+
+  try {
+
+    if (
+      scanner &&
+      scanning
+    ) {
+
+      scanning = false;
+
+      await scanner.stop();
+
+      scanner.clear();
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+
+  startBtn.style.display = 'block';
+  stopBtn.style.display = 'none';
+}
+
+</script>
+
+</body>
+</html>

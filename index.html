@@ -10,6 +10,7 @@
 
   <title>會員大會電子報到</title>
 
+  <!-- 條碼掃描套件 -->
   <script
     src="https://unpkg.com/html5-qrcode"
     type="text/javascript">
@@ -177,11 +178,17 @@
 
 <script>
 
-/*
-  ⚠️ 這裡要換成你的 GAS Web App 網址
-*/
+/* =========================
+   GAS Web App API
+========================= */
+
 const API_URL =
-  '請把你的_GAS_WEB_APP網址_貼在這裡';
+  'https://script.google.com/macros/s/AKfycbzsCECSAwfIOURN8IF3-n24Uu4MaS1KGEqcGJTy9a1_oN7U_6nWajANNpj0PVteKk6z/exec';
+
+
+/* =========================
+   全域變數
+========================= */
 
 let scanner = null;
 let scanning = false;
@@ -192,6 +199,10 @@ const memberCodeInput =
 const resultBox =
   document.getElementById('result');
 
+
+/* =========================
+   Enter 直接查詢
+========================= */
 
 memberCodeInput.addEventListener(
   'keydown',
@@ -231,7 +242,7 @@ function manualSearch() {
 
 
 /* =========================
-   啟動掃描
+   啟動條碼掃描
 ========================= */
 
 async function startScanner() {
@@ -378,6 +389,7 @@ async function stopScanner() {
 
 /* =========================
    查 Google Sheet
+   JSONP 避免跨網域 CORS
 ========================= */
 
 function lookupMember(code) {
@@ -390,6 +402,10 @@ function lookupMember(code) {
   const callbackName =
     'jsonpCallback_' +
     Date.now();
+
+  const script =
+    document.createElement('script');
+
 
   window[callbackName] =
     function(data) {
@@ -404,9 +420,6 @@ function lookupMember(code) {
     };
 
 
-  const script =
-    document.createElement('script');
-
   script.src =
     API_URL +
     '?action=find' +
@@ -415,16 +428,22 @@ function lookupMember(code) {
     '&callback=' +
     encodeURIComponent(callbackName);
 
+
   script.onerror =
     function() {
 
       delete window[callbackName];
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
 
       showMessage(
         '連線失敗，請稍後再試',
         'error'
       );
     };
+
 
   document.body.appendChild(script);
 }
@@ -445,7 +464,7 @@ function showMember(data) {
       '⚠️ ' +
       (
         data && data.message
-          ? data.message
+          ? escapeHtml(data.message)
           : '查無會員資料'
       ) +
       '</div>';

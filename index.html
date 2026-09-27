@@ -10,7 +10,7 @@
 
   <title>會員大會電子報到</title>
 
-  <!-- 條碼掃描套件 -->
+  <!-- 手機條碼掃描 -->
   <script
     src="https://unpkg.com/html5-qrcode"
     type="text/javascript">
@@ -23,7 +23,7 @@
 
     body {
       margin: 0;
-      padding: 24px;
+      padding: 22px;
       font-family: Arial, "Microsoft JhengHei", sans-serif;
       background: #FFF6E0;
       color: #333;
@@ -31,28 +31,28 @@
 
     .wrap {
       max-width: 520px;
-      margin: 0 auto;
+      margin: auto;
     }
 
     h1 {
       text-align: center;
       font-size: 28px;
-      margin: 20px 0;
+      margin: 18px 0 24px;
     }
 
     .card {
-      background: #fff;
+      background: white;
       border-radius: 18px;
       padding: 22px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
     }
 
     input {
       width: 100%;
       padding: 15px;
-      font-size: 24px;
       border: 2px solid #ddd;
       border-radius: 12px;
+      font-size: 24px;
       margin-bottom: 12px;
     }
 
@@ -62,70 +62,100 @@
       border: 0;
       border-radius: 12px;
       font-size: 20px;
+      margin-bottom: 12px;
       cursor: pointer;
-      margin-bottom: 14px;
     }
 
-    #searchBtn {
+    .brown {
       background: #AC8F6C;
       color: white;
     }
 
-    #startBtn {
+    .green {
       background: #7FA6A1;
       color: white;
     }
 
-    #stopBtn {
+    .pink {
+      background: #FFA3B2;
+      color: white;
+    }
+
+    .gray {
       background: #999;
       color: white;
+    }
+
+    #loginArea,
+    #mainArea {
       display: none;
     }
 
     #reader {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 12px;
       overflow: hidden;
       border-radius: 12px;
     }
 
-    #result {
-      margin-top: 20px;
-      padding: 18px;
-      border-radius: 12px;
-      background: #f7f7f7;
-      font-size: 20px;
-      line-height: 1.7;
+    #stopBtn {
       display: none;
     }
 
-    .name {
+    #checkinBtn {
+      display: none;
+      margin-top: 15px;
+    }
+
+    #result {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+      background: #f7f7f7;
+      border-radius: 14px;
+      font-size: 19px;
+      line-height: 1.7;
+    }
+
+    .member-name {
       font-size: 30px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .success {
-      color: #26834a;
+      color: #278047;
       font-weight: bold;
     }
 
     .warning {
-      color: #b26a00;
+      color: #B26A00;
       font-weight: bold;
     }
 
     .error {
-      color: #c62828;
+      color: #C62828;
       font-weight: bold;
     }
 
     .hint {
-      margin-top: 12px;
       color: #777;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
       text-align: center;
+      margin: 8px 0 15px;
+    }
+
+    .logout {
+      text-align: right;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .logout a {
+      color: #888;
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -136,7 +166,43 @@
 
   <h1>🐻 會員大會電子報到</h1>
 
-  <div class="card">
+  <!-- PIN登入 -->
+  <div
+    class="card"
+    id="loginArea"
+  >
+
+    <input
+      id="pinInput"
+      type="password"
+      inputmode="numeric"
+      placeholder="工作人員 PIN"
+    >
+
+    <button
+      class="brown"
+      onclick="login()">
+      進入報到系統
+    </button>
+
+    <div class="hint">
+      僅供會員大會工作人員使用
+    </div>
+
+    <div id="loginMessage"></div>
+
+  </div>
+
+
+  <!-- 主報到畫面 -->
+  <div
+    class="card"
+    id="mainArea"
+  >
+
+    <div class="logout">
+      <a onclick="logout()">更換工作人員 PIN</a>
+    </div>
 
     <input
       id="memberCode"
@@ -146,19 +212,21 @@
     >
 
     <button
-      id="searchBtn"
-      onclick="manualSearch()">
+      class="brown"
+      onclick="searchMember()">
       查詢會員
     </button>
 
     <button
-      id="startBtn"
+      id="scanBtn"
+      class="green"
       onclick="startScanner()">
       📷 開始掃會員證
     </button>
 
     <button
       id="stopBtn"
+      class="gray"
       onclick="stopScanner()">
       停止掃描
     </button>
@@ -171,6 +239,13 @@
 
     <div id="result"></div>
 
+    <button
+      id="checkinBtn"
+      class="pink"
+      onclick="confirmCheckIn()">
+      確認報到
+    </button>
+
   </div>
 
 </div>
@@ -178,9 +253,13 @@
 
 <script>
 
-/* =========================
-   GAS Web App API
-========================= */
+/*
+=========================================
+★ 熊熊只需要改這一行 ★
+
+把下面網址換成你的 GAS /exec 網址
+=========================================
+*/
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbzsCECSAwfIOURN8IF3-n24Uu4MaS1KGEqcGJTy9a1_oN7U_6nWajANNpj0PVteKk6z/exec';
@@ -190,8 +269,23 @@ const API_URL =
    全域變數
 ========================= */
 
+let currentPin = '';
+let currentCode = '';
+
 let scanner = null;
 let scanning = false;
+
+const loginArea =
+  document.getElementById('loginArea');
+
+const mainArea =
+  document.getElementById('mainArea');
+
+const pinInput =
+  document.getElementById('pinInput');
+
+const loginMessage =
+  document.getElementById('loginMessage');
 
 const memberCodeInput =
   document.getElementById('memberCode');
@@ -199,17 +293,44 @@ const memberCodeInput =
 const resultBox =
   document.getElementById('result');
 
+const checkinBtn =
+  document.getElementById('checkinBtn');
+
+const scanBtn =
+  document.getElementById('scanBtn');
+
+const stopBtn =
+  document.getElementById('stopBtn');
+
 
 /* =========================
-   Enter 直接查詢
+   開頁面
 ========================= */
 
-memberCodeInput.addEventListener(
-  'keydown',
-  function(e) {
+window.addEventListener(
+  'load',
+  function() {
 
-    if (e.key === 'Enter') {
-      manualSearch();
+    const savedPin =
+      sessionStorage.getItem('checkinPin');
+
+    if (savedPin) {
+
+      currentPin = savedPin;
+
+      loginArea.style.display =
+        'none';
+
+      mainArea.style.display =
+        'block';
+
+    } else {
+
+      loginArea.style.display =
+        'block';
+
+      mainArea.style.display =
+        'none';
     }
 
   }
@@ -217,10 +338,134 @@ memberCodeInput.addEventListener(
 
 
 /* =========================
-   手動查詢
+   PIN登入
 ========================= */
 
-function manualSearch() {
+function login() {
+
+  const pin =
+    pinInput.value.trim();
+
+  if (!pin) {
+
+    loginMessage.innerHTML =
+      '<div class="warning">' +
+      '請輸入工作人員 PIN' +
+      '</div>';
+
+    return;
+  }
+
+
+  loginMessage.innerHTML =
+    '驗證中...';
+
+
+  apiCall(
+    'find',
+    {
+      code: '__PIN_TEST__',
+      pin: pin
+    }
+  )
+  .then(function(result) {
+
+    /*
+      PIN 正確時，
+      因為 __PIN_TEST__ 不存在，
+      正常會回 NOT_FOUND。
+
+      PIN錯誤則會回 INVALID_PIN。
+    */
+
+    if (
+      result.type === 'INVALID_PIN'
+    ) {
+
+      loginMessage.innerHTML =
+        '<div class="error">' +
+        'PIN 錯誤' +
+        '</div>';
+
+      return;
+    }
+
+
+    currentPin = pin;
+
+    sessionStorage.setItem(
+      'checkinPin',
+      pin
+    );
+
+    loginArea.style.display =
+      'none';
+
+    mainArea.style.display =
+      'block';
+
+    loginMessage.innerHTML =
+      '';
+
+    memberCodeInput.focus();
+
+  })
+  .catch(function() {
+
+    loginMessage.innerHTML =
+      '<div class="error">' +
+      '無法連線到報到系統' +
+      '</div>';
+  });
+}
+
+
+function logout() {
+
+  sessionStorage.removeItem(
+    'checkinPin'
+  );
+
+  currentPin = '';
+  currentCode = '';
+
+  pinInput.value = '';
+
+  resultBox.style.display =
+    'none';
+
+  checkinBtn.style.display =
+    'none';
+
+  mainArea.style.display =
+    'none';
+
+  loginArea.style.display =
+    'block';
+}
+
+
+/* =========================
+   手動會員編號 Enter
+========================= */
+
+memberCodeInput.addEventListener(
+  'keydown',
+  function(e) {
+
+    if (e.key === 'Enter') {
+      searchMember();
+    }
+
+  }
+);
+
+
+/* =========================
+   查詢會員
+========================= */
+
+function searchMember() {
 
   const code =
     normalizeCode(
@@ -229,65 +474,316 @@ function manualSearch() {
 
   if (!code) {
 
-    showMessage(
-      '請輸入會員編號',
-      'warning'
+    showResult(
+      '<div class="warning">' +
+      '請輸入會員編號' +
+      '</div>'
     );
 
     return;
   }
 
-  lookupMember(code);
+
+  currentCode = code;
+
+  showResult('查詢中...');
+
+  checkinBtn.style.display =
+    'none';
+
+
+  apiCall(
+    'find',
+    {
+      code: code,
+      pin: currentPin
+    }
+  )
+  .then(function(result) {
+
+    if (!result.success) {
+
+      if (
+        result.type ===
+        'INVALID_PIN'
+      ) {
+
+        sessionStorage.removeItem(
+          'checkinPin'
+        );
+
+        currentPin = '';
+
+        mainArea.style.display =
+          'none';
+
+        loginArea.style.display =
+          'block';
+
+        loginMessage.innerHTML =
+          '<div class="error">' +
+          'PIN 已失效，請重新登入' +
+          '</div>';
+
+        return;
+      }
+
+
+      showResult(
+        '<div class="error">' +
+        '⚠️ ' +
+        escapeHtml(
+          result.message
+        ) +
+        '</div>'
+      );
+
+      return;
+    }
+
+
+    currentCode =
+      result.code;
+
+
+    let html =
+
+      '<div class="member-name">' +
+      escapeHtml(result.name) +
+      '</div>' +
+
+      '會員編號：' +
+      escapeHtml(result.code) +
+      '<br>' +
+
+      '報名狀態：' +
+      (
+        result.registered
+          ? '✅ 已報名'
+          : '⚠️ 未報名'
+      ) +
+      '<br>' +
+
+      '報到狀態：';
+
+
+    if (result.checkedIn) {
+
+      html +=
+        '✅ 已報到';
+
+      if (
+        result.checkInDate ||
+        result.checkInTime
+      ) {
+
+        html +=
+          '<br>報到時間：' +
+          escapeHtml(
+            result.checkInDate || ''
+          ) +
+          ' ' +
+          escapeHtml(
+            result.checkInTime || ''
+          );
+      }
+
+      checkinBtn.style.display =
+        'none';
+
+    } else {
+
+      html +=
+        '尚未報到';
+
+
+      if (result.registered) {
+
+        checkinBtn.style.display =
+          'block';
+
+      } else {
+
+        checkinBtn.style.display =
+          'none';
+      }
+    }
+
+
+    showResult(html);
+
+  })
+  .catch(function(error) {
+
+    showResult(
+      '<div class="error">' +
+      '連線失敗，請稍後再試' +
+      '</div>'
+    );
+
+  });
 }
 
 
 /* =========================
-   啟動條碼掃描
+   確認報到
+========================= */
+
+function confirmCheckIn() {
+
+  if (!currentCode) {
+    return;
+  }
+
+
+  checkinBtn.disabled =
+    true;
+
+  checkinBtn.textContent =
+    '報到中...';
+
+
+  apiCall(
+    'checkin',
+    {
+      code: currentCode,
+      pin: currentPin
+    }
+  )
+  .then(function(result) {
+
+    checkinBtn.disabled =
+      false;
+
+    checkinBtn.textContent =
+      '確認報到';
+
+
+    if (!result.success) {
+
+      showResult(
+        '<div class="warning">' +
+        '⚠️ ' +
+        escapeHtml(
+          result.message
+        ) +
+        '</div>'
+      );
+
+      checkinBtn.style.display =
+        'none';
+
+      return;
+    }
+
+
+    showResult(
+
+      '<div class="member-name">' +
+      escapeHtml(result.name) +
+      '</div>' +
+
+      '<div class="success">' +
+      '✅ 報到成功' +
+      '</div>' +
+
+      '會員編號：' +
+      escapeHtml(result.code) +
+      '<br>' +
+
+      '報到時間：' +
+      escapeHtml(
+        result.checkInDate
+      ) +
+      ' ' +
+      escapeHtml(
+        result.checkInTime
+      )
+
+    );
+
+
+    checkinBtn.style.display =
+      'none';
+
+
+    // 2秒後準備下一位
+    setTimeout(
+      resetForNextMember,
+      2000
+    );
+
+  })
+  .catch(function() {
+
+    checkinBtn.disabled =
+      false;
+
+    checkinBtn.textContent =
+      '確認報到';
+
+    showResult(
+      '<div class="error">' +
+      '報到連線失敗，請稍後再試' +
+      '</div>'
+    );
+  });
+}
+
+
+/* =========================
+   開始掃條碼
 ========================= */
 
 async function startScanner() {
 
-  const startBtn =
-    document.getElementById('startBtn');
+  resultBox.style.display =
+    'none';
 
-  const stopBtn =
-    document.getElementById('stopBtn');
+  checkinBtn.style.display =
+    'none';
 
-  resultBox.style.display = 'none';
-  resultBox.innerHTML = '';
 
   try {
 
-    scanner = new Html5Qrcode("reader");
+    scanner =
+      new Html5Qrcode(
+        "reader"
+      );
+
 
     const config = {
 
       fps: 12,
 
-      qrbox: function(
-        viewfinderWidth,
-        viewfinderHeight
-      ) {
+      qrbox:
+        function(
+          viewfinderWidth,
+          viewfinderHeight
+        ) {
 
-        const width =
-          Math.min(
-            Math.floor(
-              viewfinderWidth * 0.85
-            ),
-            360
-          );
+          const width =
+            Math.min(
+              Math.floor(
+                viewfinderWidth *
+                0.85
+              ),
+              360
+            );
 
-        return {
-          width: width,
-          height: 120
-        };
-      },
+          return {
+            width: width,
+            height: 120
+          };
+        },
 
       formatsToSupport: [
 
-        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats
+          .CODE_39,
 
-        Html5QrcodeSupportedFormats.CODE_128
+        Html5QrcodeSupportedFormats
+          .CODE_128
 
       ]
     };
@@ -296,7 +792,8 @@ async function startScanner() {
     await scanner.start(
 
       {
-        facingMode: "environment"
+        facingMode:
+          "environment"
       },
 
       config,
@@ -304,7 +801,7 @@ async function startScanner() {
       onScanSuccess,
 
       function() {
-        // 掃不到時不顯示錯誤
+        // 持續掃描時不顯示錯誤
       }
 
     );
@@ -312,23 +809,32 @@ async function startScanner() {
 
     scanning = true;
 
-    startBtn.style.display = 'none';
-    stopBtn.style.display = 'block';
+    scanBtn.style.display =
+      'none';
+
+    stopBtn.style.display =
+      'block';
 
 
   } catch (error) {
 
-    showMessage(
-      '無法開啟相機：' +
-      String(error),
-      'error'
+    showResult(
+
+      '<div class="error">' +
+      '無法開啟相機。<br><br>' +
+      escapeHtml(
+        String(error)
+      ) +
+      '</div>'
+
     );
+
   }
 }
 
 
 /* =========================
-   掃描成功
+   條碼成功
 ========================= */
 
 async function onScanSuccess(
@@ -337,31 +843,50 @@ async function onScanSuccess(
 ) {
 
   const code =
-    normalizeCode(decodedText);
+    normalizeCode(
+      decodedText
+    );
 
   if (!code) {
     return;
   }
 
-  memberCodeInput.value = code;
 
   await stopScanner();
 
-  lookupMember(code);
+
+  memberCodeInput.value =
+    code;
+
+  currentCode =
+    code;
+
+
+  showResult(
+
+    '<div class="success">' +
+    '✅ 已讀取會員證' +
+    '</div>' +
+
+    '會員編號：' +
+    escapeHtml(code)
+
+  );
+
+
+  // 自動查Google Sheet
+  setTimeout(
+    searchMember,
+    250
+  );
 }
 
 
 /* =========================
-   停止掃描
+   停止相機
 ========================= */
 
 async function stopScanner() {
-
-  const startBtn =
-    document.getElementById('startBtn');
-
-  const stopBtn =
-    document.getElementById('stopBtn');
 
   try {
 
@@ -377,176 +902,238 @@ async function stopScanner() {
       scanner.clear();
     }
 
-  } catch (error) {
-
-    console.log(error);
+  } catch (e) {
+    // 不顯示
   }
 
-  startBtn.style.display = 'block';
-  stopBtn.style.display = 'none';
+
+  scanBtn.style.display =
+    'block';
+
+  stopBtn.style.display =
+    'none';
 }
 
 
 /* =========================
-   查 Google Sheet
-   JSONP 避免跨網域 CORS
+   下一位
 ========================= */
 
-function lookupMember(code) {
+function resetForNextMember() {
 
-  showMessage(
-    '查詢中...',
-    ''
-  );
+  currentCode = '';
 
-  const callbackName =
-    'jsonpCallback_' +
-    Date.now();
+  memberCodeInput.value = '';
 
-  const script =
-    document.createElement('script');
+  resultBox.innerHTML = '';
+  resultBox.style.display =
+    'none';
 
+  checkinBtn.style.display =
+    'none';
 
-  window[callbackName] =
-    function(data) {
-
-      delete window[callbackName];
-
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-
-      showMember(data);
-    };
+  memberCodeInput.focus();
+}
 
 
-  script.src =
-    API_URL +
-    '?action=find' +
-    '&code=' +
-    encodeURIComponent(code) +
-    '&callback=' +
-    encodeURIComponent(callbackName);
+/* =========================
+   API JSONP
+========================= */
+
+function apiCall(
+  action,
+  params
+) {
+
+  return new Promise(
+    function(resolve, reject) {
+
+      const callbackName =
+        'jsonp_' +
+        Date.now() +
+        '_' +
+        Math.floor(
+          Math.random() *
+          100000
+        );
 
 
-  script.onerror =
-    function() {
+      const script =
+        document.createElement(
+          'script'
+        );
 
-      delete window[callbackName];
 
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      const query =
+        new URLSearchParams();
 
-      showMessage(
-        '連線失敗，請稍後再試',
-        'error'
+
+      query.set(
+        'action',
+        action
       );
-    };
 
 
-  document.body.appendChild(script);
+      Object.keys(
+        params || {}
+      )
+      .forEach(
+        function(key) {
+
+          query.set(
+            key,
+            params[key]
+          );
+
+        }
+      );
+
+
+      query.set(
+        'callback',
+        callbackName
+      );
+
+
+      window[callbackName] =
+        function(data) {
+
+          resolve(data);
+
+          cleanup();
+
+        };
+
+
+      script.onerror =
+        function() {
+
+          reject(
+            new Error(
+              'API連線失敗'
+            )
+          );
+
+          cleanup();
+
+        };
+
+
+      function cleanup() {
+
+        try {
+
+          delete window[
+            callbackName
+          ];
+
+        } catch (e) {}
+
+
+        if (
+          script.parentNode
+        ) {
+
+          script.parentNode
+            .removeChild(
+              script
+            );
+        }
+      }
+
+
+      script.src =
+        API_URL +
+        '?' +
+        query.toString();
+
+
+      document.body
+        .appendChild(
+          script
+        );
+
+
+      // 15秒逾時
+      setTimeout(
+        function() {
+
+          if (
+            window[
+              callbackName
+            ]
+          ) {
+
+            reject(
+              new Error(
+                'API逾時'
+              )
+            );
+
+            cleanup();
+          }
+
+        },
+        15000
+      );
+
+    }
+  );
 }
 
 
 /* =========================
-   顯示會員資料
-========================= */
-
-function showMember(data) {
-
-  resultBox.style.display = 'block';
-
-  if (!data || !data.success) {
-
-    resultBox.innerHTML =
-      '<div class="error">' +
-      '⚠️ ' +
-      (
-        data && data.message
-          ? escapeHtml(data.message)
-          : '查無會員資料'
-      ) +
-      '</div>';
-
-    return;
-  }
-
-  resultBox.innerHTML =
-
-    '<div class="name">' +
-    escapeHtml(data.name) +
-    '</div>' +
-
-    '會員編號：' +
-    escapeHtml(data.code) +
-    '<br>' +
-
-    '報名狀態：' +
-    (
-      data.registered
-        ? '✅ 已報名'
-        : '⚠️ 未報名'
-    ) +
-
-    '<br>' +
-
-    '報到狀態：' +
-    (
-      data.checkedIn
-        ? '✅ 已報到'
-        : '尚未報到'
-    );
-}
-
-
-/* =========================
-   清理會員編號
+   工具
 ========================= */
 
 function normalizeCode(value) {
 
-  return String(value || '')
-    .trim()
-    .toUpperCase()
-    .replace(/^\*/, '')
-    .replace(/\*$/, '')
-    .trim();
+  return String(
+    value || ''
+  )
+  .trim()
+  .toUpperCase()
+  .replace(/^\*/, '')
+  .replace(/\*$/, '')
+  .trim();
 }
 
 
-/* =========================
-   顯示訊息
-========================= */
+function showResult(html) {
 
-function showMessage(
-  message,
-  type
-) {
-
-  resultBox.style.display = 'block';
+  resultBox.style.display =
+    'block';
 
   resultBox.innerHTML =
-    '<div class="' +
-    type +
-    '">' +
-    escapeHtml(message) +
-    '</div>';
+    html;
 }
 
-
-/* =========================
-   HTML 安全處理
-========================= */
 
 function escapeHtml(value) {
 
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  return String(
+    value || ''
+  )
+  .replace(
+    /&/g,
+    '&amp;'
+  )
+  .replace(
+    /</g,
+    '&lt;'
+  )
+  .replace(
+    />/g,
+    '&gt;'
+  )
+  .replace(
+    /"/g,
+    '&quot;'
+  )
+  .replace(
+    /'/g,
+    '&#039;'
+  );
 }
 
 </script>

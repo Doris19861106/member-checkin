@@ -13,6 +13,12 @@
     中華民國財稅會計學習交流協會電子簽到系統
   </title>
 
+  <!-- iPhone 加到主畫面的桌面圖示 -->
+  <link
+    rel="apple-touch-icon"
+    href="app-icon-180.png"
+  >
+
   <!-- 手機條碼掃描 -->
   <script
     src="https://unpkg.com/html5-qrcode"
@@ -436,7 +442,7 @@
     </button>
 
     <div class="login-note">
-      僅供工作人員使用
+      僅供會員大會工作人員使用
     </div>
 
     <div id="loginMessage"></div>
@@ -691,12 +697,6 @@ function login() {
     '驗證中...';
 
 
-  /*
-    用不存在的會員編號測 PIN。
-    PIN 正確 → NOT_FOUND
-    PIN 錯誤 → INVALID_PIN
-  */
-
   apiCall(
     'find',
     {
@@ -835,8 +835,6 @@ function searchMember() {
   .then(function(result) {
 
 
-    /* PIN失效 */
-
     if (
       result.type ===
       'INVALID_PIN'
@@ -862,8 +860,6 @@ function searchMember() {
       return;
     }
 
-
-    /* 查無 */
 
     if (!result.success) {
 
@@ -896,6 +892,7 @@ function searchMember() {
       escapeHtml(
         result.code
       ) +
+
       '<br>' +
 
       '報名狀態：' +
@@ -1073,10 +1070,6 @@ function confirmCheckIn() {
       'none';
 
 
-    /*
-      2 秒後準備下一位
-    */
-
     setTimeout(
       resetForNextMember,
       2000
@@ -1193,7 +1186,6 @@ async function startScanner() {
       onScanSuccess,
 
       function() {
-        // 掃描過程不用顯示辨識失敗
       }
 
     );
@@ -1272,10 +1264,6 @@ async function onScanSuccess(
   );
 
 
-  /*
-    掃完自動查 Google Sheet
-  */
-
   setTimeout(
     searchMember,
     250
@@ -1306,8 +1294,6 @@ async function stopScanner() {
     }
 
   } catch (e) {
-
-    // 不顯示
 
   }
 
